@@ -410,6 +410,20 @@ func TestMVCCPutWithoutTxn(t *testing.T) {
 	}
 }
 
+// func TestMVCCGetNegativeTimestamp(t *testing.T) {
+// 	defer leaktest.AfterTest(t)()
+// 	engine := createTestEngine()
+// 	defer engine.Close()
+// 	if err := MVCCPut(
+// 		context.Background(), engine, nil, testKey1, hlc.Timestamp{WallTime: 1}, value1, nil); err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	if _, _, err := MVCCGet(
+// 		context.Background(), engine, testKey1, hlc.Timestamp{WallTime: -1}, true, nil); err == nil {
+// 		t.Fatal("cannot get a key at a negative timestamp")
+// 	}
+// }
+
 func TestMVCCPutNegativeTimestamp(t *testing.T) {
 	defer leaktest.AfterTest(t)()
 	engine := createTestEngine()
