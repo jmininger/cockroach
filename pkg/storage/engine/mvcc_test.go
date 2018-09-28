@@ -410,6 +410,19 @@ func TestMVCCPutWithoutTxn(t *testing.T) {
 	}
 }
 
+func TestMVCCPutNegativeTimestamp(t *testing.T) {
+	defer leaktest.AfterTest(t)()
+	engine := createTestEngine()
+	defer engine.Close()
+
+	// There is an assumption here that if an error is returned it is the error caused by the negative
+	// ts and not by any of the other errors that could be returned during the MVCCPut func call. This
+	// seems wrong, but it is what TestMVCCGetWriteIntentError appears to be doing
+	if err := MVCCPut(context.Background(), engine, nil, testKey1, hlc.Timestamp{WallTime: -1}, value1, nil); err == nil {
+		t.Fatal("cannot put a key at a negative timestamp")
+	}
+}
+
 // TestMVCCPutOutOfOrder tests a scenario where a put operation of an
 // older timestamp comes after a put operation of a newer timestamp.
 func TestMVCCPutOutOfOrder(t *testing.T) {

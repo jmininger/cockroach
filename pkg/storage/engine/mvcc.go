@@ -840,6 +840,13 @@ func mvccGetInternal(
 		}
 		return value, nil, safeValue, nil
 	}
+
+	// Ensure timestamp is non-negative.
+	if timestamp.WallTime < 0 {
+		return errors.Errorf("Get at key: %q is invalid because of negative timestamp.WallTime: %d",
+			key, timestamp.WallTime)
+	}
+
 	var ignoredIntents []roachpb.Intent
 	metaTimestamp := hlc.Timestamp(meta.Timestamp)
 	if !consistent && meta.Txn != nil && !timestamp.Less(metaTimestamp) {
@@ -1165,6 +1172,12 @@ func mvccPutInternal(
 ) error {
 	if len(key) == 0 {
 		return emptyKeyError()
+	}
+
+	// Ensure timestamp is non-negative.
+	if timestamp.WallTime < 0 {
+		return errors.Errorf("Put at key: %q is invalid because of negative timestamp.WallTime: %d",
+			key, timestamp.WallTime)
 	}
 
 	metaKey := MakeMVCCMetadataKey(key)
